@@ -54,7 +54,7 @@ export const getAll = async (req, res) => {
     console.error(error)
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: '伺服器內部錯誤',
+      message: process.env.NODE_ENV === 'development' ? error.message : '伺服器內部錯誤',
     })
   }
 }
@@ -68,11 +68,11 @@ export const get = async (req, res) => {
       orgs,
     })
   } catch (error) {
-    console.log('controllers/org.js getAll')
+    console.log('controllers/org.js get')
     console.error(error)
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: '伺服器內部錯誤',
+      message: process.env.NODE_ENV === 'development' ? error.message : '伺服器內部錯誤',
     })
   }
 }

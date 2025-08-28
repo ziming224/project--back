@@ -14,6 +14,11 @@ const schema = new Schema(
       required: [true, '價格是必填的'],
       min: [0, '價格不能為負數'],
     },
+    stock: {
+      type: Number,
+      required: [true, '庫存是必填的'],
+      min: [0, '庫存不能為負數'],
+    },
     description: {
       type: String,
       trim: true,

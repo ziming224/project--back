@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose'
+import validator from 'validator'
 
 const schema = new Schema(
   {
@@ -29,9 +30,32 @@ const schema = new Schema(
       type: String,
       required: [true, '電話是必填的'],
     },
-    description: {
+    mail: {
       type: String,
       trim: true,
+      // validate: {
+      //   validator: (value) => {
+      //     if (!value) return true
+      //     return validator.isEmail(value)
+      //   },
+      //   message: '電子信箱格式不正確',
+      // },
+    },
+    fb: {
+      type: String,
+      trim: [true],
+    },
+    website: {
+      type: String,
+      trim: [true],
+    },
+    openingHours: {
+      type: String,
+      trim: [true],
+    },
+    description: {
+      type: String,
+      trim: [true],
       maxlength: [500, '描述最多只能有 500 個字元'],
     },
     sell: {
