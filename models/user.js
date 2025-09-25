@@ -50,12 +50,10 @@ const schema = new Schema(
     cart: {
       type: [cartSchema],
     },
-    favorites: [{
-      // 存放商品 ID
-      type: mongoose.Schema.ObjectId,
-      // 關聯 Product 模型
-      ref: 'Product',
-    }],
+    // favorites: [{
+    //   type: mongoose.Schema.ObjectId,
+    //   ref: 'Product',
+    // }],
     tokens: {
       type: [String],
     },

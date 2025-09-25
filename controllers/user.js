@@ -52,7 +52,6 @@ export const login = async (req, res) => {
         account: req.user.account,
         role: req.user.role,
         cartTotal: req.user.cartTotal,
-        favorites: req.user.favorites,
         token,
       },
     })
@@ -73,6 +72,8 @@ export const profile = (req, res) => {
       account: req.user.account,
       role: req.user.role,
       cartTotal: req.user.cartTotal,
+      // favorites: req.user.favorites,
+      // token,
     },
   })
 }
@@ -189,66 +190,6 @@ export const cart = async (req, res) => {
   }
 }
 
-export const toggleFavorite = async (req, res) => {
-  try {
-    const productId = req.body.product
-    if (!validator.isMongoId(productId)) {
-      throw new Error('PRODUCT ID')
-    }
-
-    const i = req.user.favorites.findIndex(item => item.toString() === productId)
-    let isFavorite = false
-
-    if (i > -1) {
-      // 如果已存在，就從收藏中移除
-      req.user.favorites.splice(i, 1)
-      isFavorite = false
-    } else {
-      // 如果不存在，就加入收藏
-      req.user.favorites.push(productId)
-      isFavorite = true
-    }
-
-    await req.user.save()
-    res.status(StatusCodes.OK).json({
-      success: true,
-      message: '',
-      result: isFavorite,
-    })
-  } catch (error) {
-    console.error(error)
-    if (error.message === 'PRODUCT ID') {
-      res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: '商品 ID 格式錯誤' })
-    } else {
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: '伺服器內部錯誤' })
-    }
-  }
-}
-
-export const getFavorites = async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id, 'favorites')
-      .populate('favorites')
-      .orFail(new Error('USER NOT FOUND'))
-
-    res.status(StatusCodes.OK).json({
-      success: true,
-      message: '',
-      result: user.favorites,
-    })
-  } catch (error) {
-    console.error(error)
-    if (error.message === 'USER NOT FOUND') {
-      res.status(StatusCodes.NOT_FOUND).json({ success: false, message: '使用者不存在' })
-    } else {
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: '伺服器內部錯誤',
-      })
-    }
-  }
-}
-
 export const getCart = async (req, res) => {
   try {
     // email account        --> 只取 email 和 account 欄位
@@ -284,3 +225,64 @@ export const getCart = async (req, res) => {
     }
   }
 }
+
+// 收藏功能
+// export const toggleFavorite = async (req, res) => {
+//   try {
+//     const productId = req.body.product
+//     if (!validator.isMongoId(productId)) {
+//       throw new Error('PRODUCT ID')
+//     }
+
+//     const i = req.user.favorites.findIndex(item => item.toString() === productId)
+//     let isFavorite = false
+
+//     if (i > -1) {
+//       // 如果已存在，就從收藏中移除
+//       req.user.favorites.splice(i, 1)
+//       isFavorite = false
+//     } else {
+//       // 如果不存在，就加入收藏
+//       req.user.favorites.push(productId)
+//       isFavorite = true
+//     }
+
+//     await req.user.save()
+//     res.status(StatusCodes.OK).json({
+//       success: true,
+//       message: '',
+//       result: isFavorite,
+//     })
+//   } catch (error) {
+//     console.error(error)
+//     if (error.message === 'PRODUCT ID') {
+//       res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: '商品 ID 格式錯誤' })
+//     } else {
+//       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: '伺服器內部錯誤' })
+//     }
+//   }
+// }
+
+// export const getFavorites = async (req, res) => {
+//   try {
+//     const user = await User.findById(req.user._id, 'favorites')
+//       .populate('favorites')
+//       .orFail(new Error('USER NOT FOUND'))
+
+//     res.status(StatusCodes.OK).json({
+//       success: true,
+//       message: '',
+//       result: user.favorites,
+//     })
+//   } catch (error) {
+//     console.error(error)
+//     if (error.message === 'USER NOT FOUND') {
+//       res.status(StatusCodes.NOT_FOUND).json({ success: false, message: '使用者不存在' })
+//     } else {
+//       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+//         success: false,
+//         message: '伺服器內部錯誤',
+//       })
+//     }
+//   }
+// }
