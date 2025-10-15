@@ -12,6 +12,7 @@ router.delete('/logout', auth.token, user.logout)
 router.patch('/cart', auth.token, user.cart)
 router.get('/cart', auth.token, user.getCart)
 
-// router.post('/favorites', auth.token, user.toggleFavorite)
-// router.get('/favorites', auth.token, user.getFavorites)
+router.post('/favorites', auth.token, user.toggleFavorite)
+router.get('/favorites', auth.token, user.getFavorites)
+
 export default router

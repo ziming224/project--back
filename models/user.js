@@ -50,10 +50,10 @@ const schema = new Schema(
     cart: {
       type: [cartSchema],
     },
-    // favorites: [{
-    //   type: mongoose.Schema.ObjectId,
-    //   ref: 'Product',
-    // }],
+    favorites: [{
+      type: Schema.Types.ObjectId,
+      ref: 'orgs',
+    }],
     tokens: {
       type: [String],
     },

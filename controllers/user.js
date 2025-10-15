@@ -1,6 +1,7 @@
 import User from '../models/user.js'
 import { StatusCodes } from 'http-status-codes'
 import jwt from 'jsonwebtoken'
+import Org from '../models/org.js'
 import validator from 'validator'
 import Product from '../models/product.js'
 
@@ -227,62 +228,71 @@ export const getCart = async (req, res) => {
 }
 
 // 收藏功能
-// export const toggleFavorite = async (req, res) => {
-//   try {
-//     const productId = req.body.product
-//     if (!validator.isMongoId(productId)) {
-//       throw new Error('PRODUCT ID')
-//     }
+export const toggleFavorite = async (req, res) => {
+  try {
+    // 確保傳入的是 org ID
+    const orgId = req.body.org
+    if (!validator.isMongoId(orgId)) {
+      throw new Error('ORG ID')
+    }
 
-//     const i = req.user.favorites.findIndex(item => item.toString() === productId)
-//     let isFavorite = false
+    // 檢查該組織是否存在於資料庫中
+    const org = await Org.findById(orgId)
+    if (!org) {
+      throw new Error('ORG NOT FOUND')
+    }
 
-//     if (i > -1) {
-//       // 如果已存在，就從收藏中移除
-//       req.user.favorites.splice(i, 1)
-//       isFavorite = false
-//     } else {
-//       // 如果不存在，就加入收藏
-//       req.user.favorites.push(productId)
-//       isFavorite = true
-//     }
+    const i = req.user.favorites.findIndex(item => item.toString() === orgId)
 
-//     await req.user.save()
-//     res.status(StatusCodes.OK).json({
-//       success: true,
-//       message: '',
-//       result: isFavorite,
-//     })
-//   } catch (error) {
-//     console.error(error)
-//     if (error.message === 'PRODUCT ID') {
-//       res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: '商品 ID 格式錯誤' })
-//     } else {
-//       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: '伺服器內部錯誤' })
-//     }
-//   }
-// }
+    if (i > -1) {
+      // 如果已存在，就從收藏中移除
+      req.user.favorites.splice(i, 1)
+    } else {
+      // 如果不存在，就加入收藏
+      req.user.favorites.push(orgId)
+    }
 
-// export const getFavorites = async (req, res) => {
-//   try {
-//     const user = await User.findById(req.user._id, 'favorites')
-//       .populate('favorites')
-//       .orFail(new Error('USER NOT FOUND'))
+    await req.user.save()
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: '',
+      // 直接回傳更新後的使用者收藏 ID 列表
+      // populate a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a-
+      // populate the favorites field to return the full organization objects
+      result: (await req.user.populate('favorites')).favorites,
+    })
+  } catch (error) {
+    console.error(error)
+    if (error.message === 'ORG ID') {
+      res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: '組織 ID 格式錯誤' })
+    } else if (error.message === 'ORG NOT FOUND') {
+      res.status(StatusCodes.NOT_FOUND).json({ success: false, message: '找不到該組織' })
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: '伺服器內部錯誤' })
+    }
+  }
+}
 
-//     res.status(StatusCodes.OK).json({
-//       success: true,
-//       message: '',
-//       result: user.favorites,
-//     })
-//   } catch (error) {
-//     console.error(error)
-//     if (error.message === 'USER NOT FOUND') {
-//       res.status(StatusCodes.NOT_FOUND).json({ success: false, message: '使用者不存在' })
-//     } else {
-//       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-//         success: false,
-//         message: '伺服器內部錯誤',
-//       })
-//     }
-//   }
-// }
+export const getFavorites = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id, 'favorites')
+      .populate('favorites')
+      .orFail(new Error('USER NOT FOUND'))
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: '',
+      result: user.favorites,
+    })
+  } catch (error) {
+    console.error(error)
+    if (error.message === 'USER NOT FOUND') {
+      res.status(StatusCodes.NOT_FOUND).json({ success: false, message: '使用者不存在' })
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: '伺服器內部錯誤',
+      })
+    }
+  }
+}
