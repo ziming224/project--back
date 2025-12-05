@@ -9,6 +9,7 @@ import orgRouter from './routes/org.js'
 import orderRouter from './routes/order.js'
 import './passport.js'
 
+// --- MongoDB ---
 mongoose
   .connect(process.env.DB_URL)
   .then(() => {
@@ -21,6 +22,16 @@ mongoose
   })
 
 const app = express()
+
+// HEAD / 讓 Render 冷啟動檢查不會報錯
+app.head("/", (req, res) => {
+  res.status(200).end();
+})
+
+// GET / 讓使用者打開根目錄不會 404
+app.get("/", (req, res) => {
+  res.status(200).send("Server OK");
+})
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -37,6 +48,7 @@ app.use((error, req, res, _next) => {
   })
 })
 
+// --- 主路由 ---
 app.use('/user', userRouter)
 app.use('/product', productRouter)
 app.use('/org', orgRouter)
